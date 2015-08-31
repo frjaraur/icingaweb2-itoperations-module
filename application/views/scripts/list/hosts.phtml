@@ -1,0 +1,103 @@
+<?php
+
+use Icinga\Module\Monitoring\Object\Host;
+
+if (! $this->compact): ?>
+<div class="controls separated">
+  <?= $this->tabs; ?>
+  <div class="dontprint">
+    <?= $this->render('list/components/selectioninfo.phtml'); ?>
+    <?= $this->render('list/components/hostssummary.phtml'); ?>
+  </div>
+  <?= $this->sortBox; ?>
+  <?= $this->limiter; ?>
+  <?= $this->paginator; ?>
+  <?= $this->filterEditor; ?>
+</div>
+<?php endif ?>
+<div class="content">
+<H1>IT Operations Hosts</H1>
+<?php
+
+if (count($hosts) === 0) {
+    echo $this->translate('No hosts found matching the filter') . '</div>';
+    return;
+}
+?>
+
+<table
+    data-base-target="_next"
+    class="action multiselect"
+    data-icinga-multiselect-url="<?= $this->href('monitoring/hosts/show') ?>"
+    data-icinga-multiselect-data="host"
+>
+  <tbody>
+  <?php foreach($hosts as $host):
+
+    $hostStateName = Host::getStateText($host->host_state);
+    $hostLink = $this->href('monitoring/host/show', array('host' => $host->host_name));
+
+
+    ?>
+    <tr class="state <?= $hostStateName ?><?= $host->host_handled ? ' handled' : '' ?>">
+      <!-- State -->
+      <td class="state">
+        <strong><?= Host::getStateText($host->host_state, true); ?></strong>
+        <?php if ((int) $host->host_state !== 99): ?>
+          <br />
+          <?= $this->timeSince($host->host_last_state_change, $this->compact) ?>
+          <?php if ((int) $host->host_state > 0 && (int) $host->host_state_type === 0): ?>
+            <br />
+            <strong>Soft <?= $host->host_attempt ?></strong>
+          <?php endif ?>
+        <?php endif ?>
+      </td>
+
+      <!-- Host / Status / Output -->
+      <td>
+        <?= $this->iconImage()->host($host) ?>
+        <span class="objectflags"><?= implode(' ', $this->hostFlags($host)) ?></span>
+        <?= $this->qlink(
+          $host->host_display_name,
+          $hostLink,
+          null,
+          array(
+            'title' => sprintf($this->translate('Show detailed information for host %s'), $host->host_display_name)
+          )
+        ); ?>
+        <?php if (isset($host->host_unhandled_services) && $host->host_unhandled_services > 0): ?>
+        <span> (<?= $this->qlink(
+          sprintf(
+            $this->translatePlural('%u unhandled service', '%u unhandled services', $host->host_unhandled_services),
+            $host->host_unhandled_services
+          ),
+          'monitoring/list/services',
+          array(
+            'host'               => $host->host_name,
+            'service_problem'    => 1,
+            'service_handled'    => 0
+          ),
+          array(
+            'style' => 'font-weight: normal',
+            'title' => sprintf(
+              $this->translatePlural(
+                'List %s unhandled service problem on host %s',
+                'List %s unhandled service problems on host %s',
+                $host->host_unhandled_services
+              ),
+              $host->host_unhandled_services,
+              $host->host_name
+            )
+          )
+        ) ?>)</span>
+        <?php endif ?>
+        <p class="pluginoutput"><?= $this->escape($this->ellipsis($host->host_output, 10000)) ?></p>
+      </td>
+      <?php foreach($this->addColumns as $col): ?>
+      <td><?= $this->escape($host->$col) ?></td>
+      <?php endforeach ?>
+    </tr>
+  <?php endforeach ?>
+  </tbody>
+</table>
+</div>

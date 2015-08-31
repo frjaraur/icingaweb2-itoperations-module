@@ -1,0 +1,5 @@
+Module: itoperations
+Version: 0.0.1
+Dependencies: monitoring
+Description: IT Opeations Module
+ IT Operations Module.

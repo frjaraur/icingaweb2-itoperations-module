@@ -1,0 +1,42 @@
+<?php if (! $this->compact): ?>
+<div class="controls">
+  <?= $this->tabs; ?>
+  <?= $this->sortBox; ?>
+</div>
+<?php endif ?>
+<div class="content">
+<H1>IT Operations Service Groups</H1>
+<?php
+
+if (count($servicegroups) === 0) {
+    echo $this->translate('No servicegroups......') . '</div>';
+    return;
+}
+?>
+  <table class="groupview" data-base-target="_next">
+    <thead>
+<!--      <th><?= $this->translate('Last Problem'); ?></th>
+      <th><?= $this->translate('Service Group'); ?></th>
+      <th><?= $this->translate('Total Services'); ?></th>
+      <th><?= $this->translate('Service States'); ?></th>
+    </thead> -->
+    <tbody>
+    <?php foreach ($servicegroups as $s): ?>
+    <?php if(is_null($s->servicegroup_alias)){continue;} ?>
+      <tr href="<?= $this->href('monitoring/list/services', array('servicegroup_name' => $s->servicegroup_name)); ?>">
+        <td class="groupname">
+         <?= $this->qlink(
+            $s->servicegroup_alias,
+            'itoperations/list/services',
+            array('servicegroup_name' => $s->servicegroup_name),
+            array('title' => sprintf($this->translate('Show services in the group "%s"'), $s->servicegroup_alias))
+          ); ?>
+        </td>
+		<!--  <td class="total">  -->
+          <?php //print $s->services_total; ?>
+        <!-- </td> -->
+      </tr>
+    <?php endforeach ?>
+    </tbody>
+  </table>
+</div>

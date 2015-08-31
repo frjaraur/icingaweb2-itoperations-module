@@ -1,0 +1,146 @@
+<?php
+
+use Icinga\Data\Filter\Filter;
+use Icinga\Web\Url;
+use Icinga\Module\Monitoring\Object\Service;
+
+function urlAddFilterOptional($url, $filter, $optional) {
+    $url = Url::fromPath($url);
+    $f = $filter;
+    if (isset($optional)) {
+        $f = Filter::matchAll($filter, $optional);
+    }
+    return $url->setQueryString($f->toQueryString());
+}
+$this->baseFilter = isset($this->baseFilter) ? $this->baseFilter : null;
+
+$selfUrl = 'monitoring/list/services';
+$currentUrl = Url::fromRequest()->getRelativeUrl();
+?><h1 class="tinystatesummary" <?= $this->compact ? ' data-base-target="col1"' : ''; ?>>
+<?= $this->qlink(
+    sprintf($this->translatePlural(
+        '%u Service', '%u Services', $this->stats->services_total),
+        $this->stats->services_total
+    ),
+    $selfUrl,
+    null,
+    array('title' => sprintf(
+        $this->translatePlural('List %u service', 'List all %u services', $this->stats->services_total),
+        $this->stats->services_total
+    ))
+) ?>&#58;
+<span class="badges">
+<?php if ($this->stats->services_ok): ?>
+<span class="state ok<?= $currentUrl === Url::fromPath($selfUrl, array('service_state' => 0))->getRelativeUrl() ? ' active' : ''; ?>">
+    <?=
+        $this->qlink(
+            $this->stats->services_ok,
+            urlAddFilterOptional($selfUrl, Filter::where('service_state', 0), $this->baseFilter),
+            null,
+            array('title' => sprintf(
+                $this->translatePlural(
+                    'List %u service that is currently in state OK',
+                    'List %u services which are currently in state OK',
+                    $this->stats->services_ok
+                ),
+                $this->stats->services_ok
+            ))
+        );
+    ?>
+</span>
+<?php endif ?>
+<?php
+foreach (array(2 => 'critical', 3 => 'unknown', 1 => 'warning') as $stateId => $state) {
+    $pre = 'services_' . $state;
+    if ($this->stats->$pre) {
+        $handled = $pre . '_handled';
+        $unhandled = $pre . '_unhandled';
+        $paramsHandled = Filter::matchAll(
+            Filter::where('service_state', $stateId),
+            Filter::where('service_handled', 1)
+        );
+        $paramsUnhandled = Filter::matchAll(
+            Filter::where('service_state', $stateId),
+            Filter::where('service_handled', 0)
+        );
+        if ($this->stats->$unhandled) {
+            $compareUrl = Url::fromPath($selfUrl)->setQueryString($paramsUnhandled->toQueryString())->getRelativeUrl();
+        } else {
+            $compareUrl = Url::fromPath($selfUrl)->setQueryString($paramsUnhandled->toQueryString())->getRelativeUrl();
+        }
+
+        if ($compareUrl === $currentUrl) {
+            $active = ' active';
+        } else {
+            $active = '';
+        }
+
+        echo '<span class="state ' . $state . $active . ($this->stats->$unhandled ? '' : ' handled') . '">';
+        if ($this->stats->$unhandled) {
+
+            echo $this->qlink(
+                $this->stats->$unhandled,
+                urlAddFilterOptional($selfUrl, $paramsUnhandled, $this->baseFilter),
+                null,
+                array('title' => sprintf(
+                    $this->translatePlural(
+                        'List %u service that is currently in state %s',
+                        'List %u services which are currently in state %s',
+                        $this->stats->$unhandled
+                    ),
+                    $this->stats->$unhandled,
+                    Service::getStateText($stateId, true)
+                ))
+            );
+        }
+        if ($this->stats->$handled) {
+
+            if (Url::fromPath($selfUrl)->setQueryString($paramsHandled->toQueryString())->getRelativeUrl() === $currentUrl) {
+                $active = ' active';
+            } else {
+                $active = '';
+            }
+            if ($this->stats->$unhandled) {
+                echo '<span class="state handled ' . $state . $active . '">';
+            }
+            echo $this->qlink(
+                $this->stats->$handled,
+                urlAddFilterOptional($selfUrl, $paramsHandled, $this->baseFilter),
+                null,
+                array('title' => sprintf(
+                    $this->translatePlural(
+                        'List %u service that is currently in state %s (Acknowledged)',
+                        'List %u services which are currently in state %s (Acknowledged)',
+                        $this->stats->$handled
+                    ),
+                    $this->stats->$handled,
+                    Service::getStateText($stateId, true)
+                ))
+            );
+            if ($this->stats->$unhandled) {
+                echo "</span>\n";
+            }
+        }
+        echo "</span>\n";
+    }
+}
+?>
+<?php if ($this->stats->services_pending): ?>
+<span class="state pending<?= $currentUrl === Url::fromPath($selfUrl, array('service_state' => 99))->getRelativeUrl() ? ' active' : ''; ?>">
+    <?= $this->qlink(
+        $this->stats->services_pending,
+        urlAddFilterOptional($selfUrl, Filter::where('service_state', 99), $this->baseFilter),
+        null,
+        array('title' => sprintf(
+            $this->translatePlural(
+                'List %u service that is currently in state PENDING',
+                'List %u services which are currently in state PENDING',
+                $this->stats->services_pending
+            ),
+            $this->stats->services_pending
+        ))
+    ); ?>
+</span>
+<?php endif ?>
+</span>
+</h1>
