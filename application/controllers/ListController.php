@@ -492,10 +492,11 @@ class ITOperations_ListController extends Controller
 
     public function itoperationshostgroupsAction()
     {
-        $this->addTitleTab('hostgroups', $this->translate('Host Groups'), $this->translate('List host groups'));
+
+    	$this->addTitleTab('hostgroups', $this->translate('Host Groups'), $this->translate('List host groups'));
         $this->setAutorefreshInterval(12);
 
-        $query = $this->backend->select()->from('hostgroup', array(
+        $query = $this->backend->select()->from('Hostgroup', array(
             'hostgroup_alias',
             'hostgroup_name',
         	//'hosts_total',
@@ -692,7 +693,10 @@ class ITOperations_ListController extends Controller
     	$date = date('Y-m-d H:i:s');
     	$last_change_date = strtotime ( '+10 minute' , strtotime ( $date ) ) ;
     	$query = $this->backend->select()->from('servicestatus', $columns);
-    	$query->where('service_state', 1,'service_last_state_change < ?',$last_change_date);
+    	//$query->where('service_state', 1,'service_last_state_change < ?',$last_change_date);
+    	$query->where('service_state', 1);
+    	$query->where('service_state', 2);
+    	//,'service_state', 2);
     	//$query->orWhere('service_last_state_change < ?',$last_change_date);
     	$query->order('service_last_check', 'desc');
     	//$query->where('service_last_state_change', 1);

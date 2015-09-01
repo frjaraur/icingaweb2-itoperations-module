@@ -1,0 +1,33 @@
+<div class="controls separated">
+  <?php if (! $this->compact): ?>
+    <?= $this->tabs; ?>
+  <?php endif ?>
+
+</div>
+<div class="content" data-base-target="_next">
+    <?= $this->render('show/components/output.phtml') ?>
+
+    <table class="avp newsection">
+        <tbody>
+        <tr><td colspan="2"><h2><?= $this->translate('Problem handling') ?></h2></td></tr>
+        <?= $this->render('show/components/acknowledgement.phtml') ?>
+        <?= $this->render('show/components/comments.phtml') ?>
+        <?= $this->render('show/components/downtime.phtml') ?>
+        <?= $this->render('show/components/notes.phtml') ?>
+        <?= $this->render('show/components/actions.phtml') ?>  
+        <?= $this->render('show/components/flapping.phtml') ?>
+        <?= $this->render('show/components/hostgroups.phtml') ?>
+        
+        <tr><td colspan="2"><h2><?= $this->translate('IT Operations') ?></h2></td></tr>
+        <?= $this->render('show/components/manage.phtml') ?>     
+        
+        <tr><td colspan="2"><h2><?= $this->translate('Notifications') ?></h2></td></tr>
+        <?= $this->render('show/components/notifications.phtml') ?>
+        <tr><td colspan="2"><h2><?= $this->translate('Check execution') ?></h2></td></tr>
+        <?= $this->render('show/components/command.phtml') ?>
+        <?= $this->render('show/components/checksource.phtml') ?>
+        <?= $this->render('show/components/checkstatistics.phtml') ?>
+        <?= $this->render('show/components/customvars.phtml') ?>
+        </tbody>
+    </table>
+</div>

@@ -31,7 +31,7 @@ if (count($hostgroups) === 0) {
         <td class="groupname">
           <?= $this->qlink(
             $h->hostgroup_alias,
-            'monitoring/list/hosts',
+            'itoperations/list/hosts',
             array('hostgroup_name' => $h->hostgroup_name),
             array('title' => sprintf($this->translate('List all hosts in the group "%s"'), $h->hostgroup_alias))
           ); ?>
