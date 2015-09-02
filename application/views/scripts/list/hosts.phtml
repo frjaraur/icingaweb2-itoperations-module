@@ -35,7 +35,7 @@ if (count($hosts) === 0) {
   <?php foreach($hosts as $host):
 
     $hostStateName = Host::getStateText($host->host_state);
-    $hostLink = $this->href('monitoring/host/show', array('host' => $host->host_name));
+    $hostLink = $this->href('itoperations/host/show', array('host' => $host->host_name));
 
 
     ?>
@@ -65,37 +65,7 @@ if (count($hosts) === 0) {
             'title' => sprintf($this->translate('Show detailed information for host %s'), $host->host_display_name)
           )
         ); ?>
-        <?php if (isset($host->host_unhandled_services) && $host->host_unhandled_services > 0): ?>
-        <span> (<?= $this->qlink(
-          sprintf(
-            $this->translatePlural('%u unhandled service', '%u unhandled services', $host->host_unhandled_services),
-            $host->host_unhandled_services
-          ),
-          'monitoring/list/services',
-          array(
-            'host'               => $host->host_name,
-            'service_problem'    => 1,
-            'service_handled'    => 0
-          ),
-          array(
-            'style' => 'font-weight: normal',
-            'title' => sprintf(
-              $this->translatePlural(
-                'List %s unhandled service problem on host %s',
-                'List %s unhandled service problems on host %s',
-                $host->host_unhandled_services
-              ),
-              $host->host_unhandled_services,
-              $host->host_name
-            )
-          )
-        ) ?>)</span>
-        <?php endif ?>
-        <p class="pluginoutput"><?= $this->escape($this->ellipsis($host->host_output, 10000)) ?></p>
       </td>
-      <?php foreach($this->addColumns as $col): ?>
-      <td><?= $this->escape($host->$col) ?></td>
-      <?php endforeach ?>
     </tr>
   <?php endforeach ?>
   </tbody>
